@@ -2,32 +2,53 @@
 #include "GlobalAndConstants.h"
 #include <algorithm>
 #include <vector>
+#include <random>
+#include <time.h>
 
-Debris::Debris(int x, int y, int health, int attack, char shape)
-	:x(x), y(y), health(health), shape(shape), attack(attack) {
-	Game::Field[x][y] = shape;
+Debris::Debris(int x, int y, int health, int attack, int score, char shape, float speed)
+	: Entity(x, y, attack, shape), health(health), score(score), speed(speed) {}
+
+int Debris::getScore()
+{
+	return score;
 }
+int Debris::getHealth() { return health; }
+
+void Debris::
+setHealth(int health) { this->health = health; }
 
 bool Debris::move()
 {
-	add += 0.25;
-	if (Game::Field[x + 1][y] == Game::FREE && add==floor(add)) { // Swap using inbuilt function \
-			 To move the debris to the next pos
-		std::swap(Game::Field[x + 1][y], Game::Field[x][y]);
-		x++;
-	}
-	else if (Game::Field[x + 1][y] == '_' || Game::Field[x + 1][y] == Ship::shape)
+	add += speed;
+	if ((Game::Field[getX() + 1][getY()] == Game::FREE) && (add == floor(add)))
 	{
-		Game::Field[x][y] = Game::FREE;
-		Ship::health -= attack;
+		std::swap(Game::Field[getX() + 1][getY()], Game::Field[getX()][getY()]);
+		setX(getX() + 1);
+	}
+	else if (Game::Field[getX() + 1][getY()] == Ship::shape) {
+		Ship::health -= getAttack();
+		Game::Field[getX()][getY()] = Game::FREE;
 		return false;
 	}
-	else
-		for (auto f = begin(Game::fire); f != end(Game::fire); f++)
-			if (x == f->getX() && y == f->getY())
-	return true;
+	else if (Game::Field[getX() + 1][getY()] == '_') { 
+		Game::Field[getX()][getY()] = Game::FREE; 
+		return false;
+	}
+
 }
 
-Debris::~Debris()
+#define TD Game::typedeb[td]
+void Debris::newDeb()
 {
+	static int Dno = 0;
+	std::default_random_engine random(time(0));
+	std::uniform_int_distribution<int> pos(1, Game::Field[0].size() - 1);
+	decltype(pos) type(0, Game::typedeb.size() - 1);
+	int _y;
+
+	do
+		_y = pos(random);
+	while (Game::Field[1][_y] != Game::FREE);
+	auto td = type(random);
+	Game::deb.emplace_back(1, _y, TD.attack, TD.health, TD.score, TD.shape, TD.speed);
 }
