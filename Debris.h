@@ -1,24 +1,23 @@
 #pragma once
+#include "Entity.h"
 
-class Debris	// the debris class
+class Debris : public Entity	// the debris class
 {
-	int x, y;
-	int attack, health;
-	char shape;
+	//int x, y;
+	int health, score;
+	//char shape;
 	float add = 0.0f;
+	float speed;
+	static int Dno;
 
 public:
 
 	bool move();
-
-	Debris(int, int, int, int, char);
-
-	int getX() { return x; }
-	int getY() { return y; }
-
-	int getHealth() { return health; }
-	void setHealth(int health) { this->health = health; }
-	
-	~Debris();
+	Debris(int, int, int, int, int, char, float);
+	int getScore();
+	int getHealth();
+	void setHealth(int);
+	static void newDeb();
+	static int getDno();
 };
 
